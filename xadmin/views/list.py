@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 from collections import OrderedDict
 
-from django.contrib.admin.utils import label_for_field
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.core.paginator import InvalidPage, Paginator
 from django.db import models
@@ -16,7 +15,7 @@ from django.utils.safestring import mark_safe
 from django.utils.text import capfirst
 from django.utils.translation import ugettext as _
 
-from xadmin.util import lookup_field, display_for_field, boolean_icon
+from xadmin.util import lookup_field, display_for_field, boolean_icon, label_for_field
 from .base import ModelAdminView, filter_hook, inclusion_tag, csrf_protect_m
 
 # List settings
@@ -433,8 +432,9 @@ class ListAdminView(ModelAdminView):
             return mark_safe(u'<span class="this-page">%d</span> ' % (i + 1))
         else:
             return mark_safe(u'<a href="%s"%s>%d</a> ' % (
-            escape(self.get_query_string({PAGE_VAR: i})), (i == self.paginator.num_pages - 1 and ' class="end"' or ''),
-            i + 1))
+                escape(self.get_query_string({PAGE_VAR: i})),
+                (i == self.paginator.num_pages - 1 and ' class="end"' or ''),
+                i + 1))
 
     # Result List methods
     @filter_hook

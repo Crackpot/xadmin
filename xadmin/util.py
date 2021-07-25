@@ -4,6 +4,7 @@ import datetime
 import decimal
 
 from django.conf import settings
+from django.contrib.admin.utils import label_for_field, help_text_for_field
 from django.db import models
 from django.db.models.deletion import Collector
 from django.db.models.fields.related import ForeignObjectRel

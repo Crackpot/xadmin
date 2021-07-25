@@ -1,9 +1,9 @@
-from django.contrib.admin.utils import label_for_field
 from django.template import loader
 from django.utils.translation import ugettext_lazy as _
 
 from xadmin.plugins.utils import get_context_dict
 from xadmin.sites import site
+from xadmin.util import label_for_field
 from xadmin.views import BaseAdminPlugin, ListAdminView
 
 LAYOUT_VAR = '_layout'
