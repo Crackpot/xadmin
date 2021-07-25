@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+
 import copy
 
 from crispy_forms.utils import TEMPLATE_PACK
@@ -12,13 +13,13 @@ from django.template import loader
 from django.template.response import TemplateResponse
 from django.utils import six
 from django.utils.encoding import force_text, smart_text
+from django.utils.html import conditional_escape
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
-from django.utils.html import conditional_escape
+
 from xadmin.layout import FormHelper, Layout, Fieldset, Container, Column, Field, Col, TabHolder
 from xadmin.util import unquote, lookup_field, display_for_field, boolean_icon, label_for_field
-
 from .base import ModelAdminView, filter_hook, csrf_protect_m
 
 # Text to display within change-list table cells if the value is blank.
@@ -77,11 +78,9 @@ class ResultField(object):
     def init(self):
         self.label = label_for_field(self.field_name, self.obj.__class__,
                                      model_admin=self.admin_view,
-                                     return_attr=False
-                                     )
+                                     return_attr=False)
         try:
-            f, attr, value = lookup_field(
-                self.field_name, self.obj, self.admin_view)
+            f, attr, value = lookup_field(self.field_name, self.obj, self.admin_view)
         except (AttributeError, ObjectDoesNotExist):
             self.text
         else:
@@ -104,11 +103,9 @@ class ResultField(object):
 
     @property
     def val(self):
-        text = mark_safe(
-            self.text) if self.allow_tags else conditional_escape(self.text)
+        text = mark_safe(self.text) if self.allow_tags else conditional_escape(self.text)
         if force_text(text) == '' or text == 'None' or text == EMPTY_CHANGELIST_VALUE:
-            text = mark_safe(
-                '<span class="text-muted">%s</span>' % EMPTY_CHANGELIST_VALUE)
+            text = mark_safe('<span class="text-muted">%s</span>' % EMPTY_CHANGELIST_VALUE)
         for wrap in self.wraps:
             text = mark_safe(wrap % text)
         return text
@@ -118,8 +115,7 @@ def replace_field_to_value(layout, cb):
     cls_str = str if six.PY3 else basestring
     for i, lo in enumerate(layout.fields):
         if isinstance(lo, Field) or issubclass(lo.__class__, Field):
-            layout.fields[i] = ShowField(
-                cb, *lo.fields, attrs=lo.attrs, wrapper_class=lo.wrapper_class)
+            layout.fields[i] = ShowField(cb, *lo.fields, attrs=lo.attrs, wrapper_class=lo.wrapper_class)
         elif isinstance(lo, cls_str):
             layout.fields[i] = ShowField(cb, lo)
         elif hasattr(lo, 'get_field_names'):
@@ -127,7 +123,6 @@ def replace_field_to_value(layout, cb):
 
 
 class DetailAdminView(ModelAdminView):
-
     form = forms.ModelForm
     detail_layout = None
     detail_show_all = True
@@ -141,9 +136,8 @@ class DetailAdminView(ModelAdminView):
             raise PermissionDenied
 
         if self.obj is None:
-            raise Http404(
-                _('%(name)s object with primary key %(key)r does not exist.') %
-                {'name': force_text(self.opts.verbose_name), 'key': escape(object_id)})
+            raise Http404(_('%(name)s object with primary key %(key)r does not exist.') %
+                          {'name': force_text(self.opts.verbose_name), 'key': escape(object_id)})
         self.org_obj = self.obj
 
     @filter_hook
@@ -171,7 +165,7 @@ class DetailAdminView(ModelAdminView):
                 rendered_fields = [i[1] for i in layout.get_field_names()]
                 container = layout[0].fields
                 other_fieldset = Fieldset(_(u'Other Fields'), *[
-                                          f for f in self.form_obj.fields.keys() if f not in rendered_fields])
+                    f for f in self.form_obj.fields.keys() if f not in rendered_fields])
 
                 if len(other_fieldset.fields):
                     if len(container) and isinstance(container[0], Column):
@@ -259,7 +253,7 @@ class DetailAdminView(ModelAdminView):
     @filter_hook
     def get_media(self):
         return super(DetailAdminView, self).get_media() + self.form_obj.media + \
-            self.vendor('xadmin.page.form.js', 'xadmin.form.css')
+               self.vendor('xadmin.page.form.js', 'xadmin.form.css')
 
     @filter_hook
     def get_field_result(self, field_name):

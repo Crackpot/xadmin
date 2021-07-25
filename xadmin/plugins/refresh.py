@@ -1,4 +1,3 @@
-# coding=utf-8
 from django.template import loader
 
 from xadmin.plugins.utils import get_context_dict
@@ -9,7 +8,6 @@ REFRESH_VAR = '_refresh'
 
 
 class RefreshPlugin(BaseAdminPlugin):
-
     refresh_times = []
 
     # Media

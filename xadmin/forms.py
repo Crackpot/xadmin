@@ -1,11 +1,8 @@
 from django import forms
-
 from django.contrib.auth import authenticate
-from django.contrib.auth.forms import AuthenticationForm
-
-from django.utils.translation import ugettext_lazy, ugettext as _
-
 from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import AuthenticationForm
+from django.utils.translation import ugettext_lazy, ugettext as _
 
 ERROR_MESSAGE = ugettext_lazy("Please enter the correct username and password "
                               "for a staff account. Note that both fields are case-sensitive.")
@@ -39,8 +36,7 @@ class AdminAuthenticationForm(AuthenticationForm):
                         pass
                     else:
                         if user.check_password(password):
-                            message = _("Your e-mail address is not your username."
-                                        " Try '%s' instead.") % user.username
+                            message = _("Your e-mail address is not your username. Try '%s' instead.") % user.username
                 raise forms.ValidationError(message)
             elif not self.user_cache.is_active or not self.user_cache.is_staff:
                 raise forms.ValidationError(message)

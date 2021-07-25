@@ -3,9 +3,9 @@ Created on Mar 26, 2014
 
 @author: LAB_ADM
 '''
-from future.utils import iteritems
-from django.utils import six
+from django.db.models.sql.query import Query
 from django.utils.translation import ugettext_lazy as _
+
 from xadmin.filters import manager, MultiSelectFieldListFilter
 from xadmin.plugins.filters import *
 from xadmin.util import is_related_field
@@ -51,7 +51,7 @@ class QuickFilterPlugin(BaseAdminPlugin):
 
         # Last term in lookup is a query term (__exact, __startswith etc)
         # This term can be ignored.
-        if len(parts) > 1 and parts[-1] in QUERY_TERMS:
+        if len(parts) > 1 and parts[-1] in Query:
             parts.pop()
 
         # Special case -- foo__id__exact and foo__id queries are implied
@@ -83,7 +83,8 @@ class QuickFilterPlugin(BaseAdminPlugin):
         return clean_lookup in self.list_quick_filter
 
     def get_list_queryset(self, queryset):
-        lookup_params = dict([(smart_str(k)[len(FILTER_PREFIX):], v) for k, v in self.admin_view.params.items() if smart_str(k).startswith(FILTER_PREFIX) and v != ''])
+        lookup_params = dict([(smart_str(k)[len(FILTER_PREFIX):], v) for k, v in self.admin_view.params.items() if
+                              smart_str(k).startswith(FILTER_PREFIX) and v != ''])
         for p_key, p_val in iteritems(lookup_params):
             if p_val == "False":
                 lookup_params[p_key] = False
@@ -94,7 +95,8 @@ class QuickFilterPlugin(BaseAdminPlugin):
 
         # for clean filters
         self.admin_view.quickfilter['has_query_param'] = bool(lookup_params)
-        self.admin_view.quickfilter['clean_query_url'] = self.admin_view.get_query_string(remove=[k for k in self.request.GET.keys() if k.startswith(FILTER_PREFIX)])
+        self.admin_view.quickfilter['clean_query_url'] = self.admin_view.get_query_string(
+            remove=[k for k in self.request.GET.keys() if k.startswith(FILTER_PREFIX)])
 
         # Normalize the types of keys
         if not self.free_query_filter:
@@ -130,8 +132,10 @@ class QuickFilterPlugin(BaseAdminPlugin):
                     field_path = field
                     field_parts = get_fields_from_path(self.model, field_path)
                     field = field_parts[-1]
-                spec = QuickFilterMultiSelectFieldListFilter(field, self.request, lookup_params, self.model, self.admin_view, field_path=field_path,
-                                                             field_order_by=field_order_by, field_limit=field_limit, sort_key=sort_key, cache_config=cache_config)
+                spec = QuickFilterMultiSelectFieldListFilter(field, self.request, lookup_params, self.model,
+                                                             self.admin_view, field_path=field_path,
+                                                             field_order_by=field_order_by, field_limit=field_limit,
+                                                             sort_key=sort_key, cache_config=cache_config)
 
                 if len(field_parts) > 1:
                     spec.title = "%s %s" % (field_parts[-2].name, spec.title)
@@ -164,5 +168,6 @@ class QuickFilterPlugin(BaseAdminPlugin):
     def block_left_navbar(self, context, nodes):
         nodes.append(loader.render_to_string('xadmin/blocks/modal_list.left_navbar.quickfilter.html',
                                              get_context_dict(context)))
+
 
 site.register_plugin(QuickFilterPlugin, ListAdminView)

@@ -1,26 +1,25 @@
 from __future__ import absolute_import
-from django.db import models
-from django.core.exceptions import ImproperlyConfigured
-from django.utils.encoding import smart_text
-from django.utils.translation import ugettext_lazy as _
-from django.utils import timezone
-from django.template.loader import get_template
-from django.template.context import Context
-from django.utils import six
-from django.utils.safestring import mark_safe
-from django.utils.html import escape, format_html
-from django.utils.text import Truncator
-from django.core.cache import cache, caches
 
-from xadmin.views.list import EMPTY_CHANGELIST_VALUE
-from xadmin.util import is_related_field, is_related_field2
 import datetime
+
+from django.core.cache import caches
+from django.core.exceptions import ImproperlyConfigured
+from django.db import models
+from django.template.loader import get_template
+from django.utils import six
+from django.utils import timezone
+from django.utils.encoding import smart_text
+from django.utils.html import escape, format_html
+from django.utils.safestring import mark_safe
+from django.utils.text import Truncator
+from django.utils.translation import ugettext_lazy as _
+
+from xadmin.util import is_related_field, is_related_field2
+from xadmin.views.list import EMPTY_CHANGELIST_VALUE
+from .util import (get_model_from_relation, reverse_field_path, get_limit_choices_to_from_path, prepare_lookup_value)
 
 FILTER_PREFIX = '_p_'
 SEARCH_VAR = '_q_'
-
-from .util import (get_model_from_relation,
-                   reverse_field_path, get_limit_choices_to_from_path, prepare_lookup_value)
 
 
 class BaseFilter(object):
@@ -99,11 +98,11 @@ class FieldFilterManager(object):
             return list_filter_class(field, request, params,
                                      model, admin_view, field_path=field_path)
 
+
 manager = FieldFilterManager()
 
 
 class FieldFilter(BaseFilter):
-
     lookup_formats = {}
 
     def __init__(self, field, request, params, model, admin_view, field_path):
@@ -172,8 +171,8 @@ class BooleanFieldListFilter(ListFieldFilter):
         ):
             yield {
                 'selected': (
-                    self.lookup_exact_val == lookup
-                    and not self.lookup_isnull_val
+                        self.lookup_exact_val == lookup
+                        and not self.lookup_isnull_val
                 ),
                 'query_string': self.query_string(
                     {self.lookup_exact_name: lookup},
@@ -222,9 +221,9 @@ class TextFieldListFilter(FieldFilter):
     @classmethod
     def test(cls, field, request, params, model, admin_view, field_path):
         return (
-            isinstance(field, models.CharField)
-            and field.max_length > 20
-            or isinstance(field, models.TextField)
+                isinstance(field, models.CharField)
+                and field.max_length > 20
+                or isinstance(field, models.TextField)
         )
 
 
@@ -279,7 +278,7 @@ class DateFieldListFilter(ListFieldFilter):
 
         if isinstance(field, models.DateTimeField):
             today = now.replace(hour=0, minute=0, second=0, microsecond=0)
-        else:       # field is a models.DateField
+        else:  # field is a models.DateField
             today = now.date()
         tomorrow = today + datetime.timedelta(days=1)
 
@@ -312,7 +311,7 @@ class DateFieldListFilter(ListFieldFilter):
     def get_context(self):
         context = super(DateFieldListFilter, self).get_context()
         context['choice_selected'] = bool(self.lookup_year_val) or bool(self.lookup_month_val) \
-            or bool(self.lookup_day_val)
+                                     or bool(self.lookup_day_val)
         return context
 
     def choices(self):
@@ -396,7 +395,7 @@ class RelatedFieldListFilter(ListFieldFilter):
             rel_name = other_model._meta.pk.name
 
         self.lookup_formats = {'in': '%%s__%s__in' % rel_name, 'exact': '%%s__%s__exact' %
-                               rel_name, 'isnull': '%s__isnull'}
+                                                                        rel_name, 'isnull': '%s__isnull'}
         self.lookup_choices = field.get_choices(include_blank=False)
         super(RelatedFieldListFilter, self).__init__(
             field, request, params, model, model_admin, field_path)
@@ -474,7 +473,8 @@ class MultiSelectFieldListFilter(ListFieldFilter):
         c = caches(self.cache_config['cache'])
         return c.set(self.cache_config['key'] % self.field_path, choices)
 
-    def __init__(self, field, request, params, model, model_admin, field_path, field_order_by=None, field_limit=None, sort_key=None, cache_config=None):
+    def __init__(self, field, request, params, model, model_admin, field_path, field_order_by=None, field_limit=None,
+                 sort_key=None, cache_config=None):
         super(MultiSelectFieldListFilter, self).__init__(field, request, params, model, model_admin, field_path)
 
         # Check for it in the cachce
@@ -489,8 +489,9 @@ class MultiSelectFieldListFilter(ListFieldFilter):
                 return
 
         # Else rebuild it
-        queryset = self.admin_view.queryset().exclude(**{"%s__isnull" % field_path: True}).values_list(field_path, flat=True).distinct()
-        #queryset = self.admin_view.queryset().distinct(field_path).exclude(**{"%s__isnull"%field_path:True})
+        queryset = self.admin_view.queryset().exclude(**{"%s__isnull" % field_path: True}).values_list(field_path,
+                                                                                                       flat=True).distinct()
+        # queryset = self.admin_view.queryset().distinct(field_path).exclude(**{"%s__isnull"%field_path:True})
 
         if field_order_by is not None:
             # Do a subquery to order the distinct set
@@ -507,7 +508,8 @@ class MultiSelectFieldListFilter(ListFieldFilter):
             self.set_cached_choices(self.lookup_choices)
 
     def choices(self):
-        self.lookup_in_val = (type(self.lookup_in_val) in (tuple, list)) and self.lookup_in_val or list(self.lookup_in_val)
+        self.lookup_in_val = (type(self.lookup_in_val) in (tuple, list)) and self.lookup_in_val or list(
+            self.lookup_in_val)
         yield {
             'selected': len(self.lookup_in_val) == 0,
             'query_string': self.query_string({}, [self.lookup_in_name]),
@@ -517,7 +519,8 @@ class MultiSelectFieldListFilter(ListFieldFilter):
             yield {
                 'selected': smart_text(val) in self.lookup_in_val,
                 'query_string': self.query_string({self.lookup_in_name: ",".join([val] + self.lookup_in_val), }),
-                'remove_query_string': self.query_string({self.lookup_in_name: ",".join([v for v in self.lookup_in_val if v != val]), }),
+                'remove_query_string': self.query_string(
+                    {self.lookup_in_name: ",".join([v for v in self.lookup_in_val if v != val]), }),
                 'display': val,
             }
 

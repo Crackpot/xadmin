@@ -1,7 +1,8 @@
 import copy
-import functools
 import datetime
 import decimal
+import functools
+from collections import OrderedDict
 from functools import update_wrapper
 from inspect import getfullargspec
 
@@ -12,13 +13,13 @@ from django.contrib import messages
 from django.contrib.auth import get_permission_codename
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
-from django.urls.base import reverse
 from django.http import HttpResponse
 from django.template import Context, Template
 from django.template.response import TemplateResponse
+from django.urls.base import reverse
 from django.utils import six
 from django.utils.decorators import method_decorator, classonlymethod
-from django.utils.encoding import force_text, smart_text, smart_str
+from django.utils.encoding import force_text, smart_text
 from django.utils.functional import Promise
 from django.utils.http import urlencode
 from django.utils.itercompat import is_iterable
@@ -27,10 +28,9 @@ from django.utils.text import capfirst
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import View
-from collections import OrderedDict
-from xadmin.util import static, json, vendor, sortkeypicker
 
 from xadmin.models import Log
+from xadmin.util import static, json, vendor, sortkeypicker
 
 csrf_protect_m = method_decorator(csrf_protect)
 
@@ -60,6 +60,7 @@ def filter_chain(filters, token, func, *args, **kwargs):
                     raise IncorrectPluginArg(u'Plugin filter method need a arg to receive parent method result.')
             else:
                 return fm(func if fargs[1] == '__' else func(), *args, **kwargs)
+
         return filter_chain(filters, token - 1, _inner_method, *args, **kwargs)
 
 
@@ -76,10 +77,11 @@ def filter_hook(func):
         if self.plugins:
             filters = [(getattr(getattr(p, tag), 'priority', 10), getattr(p, tag))
                        for p in self.plugins if callable(getattr(p, tag, None))]
-            filters = [f for p, f in sorted(filters, key=lambda x:x[0])]
+            filters = [f for p, f in sorted(filters, key=lambda x: x[0])]
             return filter_chain(filters, len(filters) - 1, _inner_method, *args, **kwargs)
         else:
             return _inner_method()
+
     return method
 
 
@@ -89,7 +91,7 @@ def inclusion_tag(file_name, context_class=Context, takes_context=False):
         def method(self, context, nodes, *arg, **kwargs):
             _dict = func(self, context, nodes, *arg, **kwargs)
             from django.template.loader import get_template, select_template
-            cls_str = str if six.PY3 else basestring
+            cls_str = str if six.PY3 else str
             if isinstance(file_name, Template):
                 t = file_name
             elif not isinstance(file_name, cls_str) and is_iterable(file_name):
@@ -108,6 +110,7 @@ def inclusion_tag(file_name, context_class=Context, takes_context=False):
             nodes.append(t.render(_dict))
 
         return method
+
     return wrap
 
 
@@ -152,7 +155,8 @@ class BaseAdminObject(object):
 
     def has_model_perm(self, model, name, user=None):
         user = user or self.user
-        return user.has_perm(self.get_model_perm(model, name)) or (name == 'view' and self.has_model_perm(model, 'change', user))
+        return user.has_perm(self.get_model_perm(model, name)) or (
+                name == 'view' and self.has_model_perm(model, 'change', user))
 
     def get_query_string(self, new_params=None, remove=None):
         if new_params is None:
@@ -256,10 +260,7 @@ class BaseAdminView(BaseAdminObject, View):
         self.request = request
         self.request_method = request.method.lower()
         self.user = request.user
-
-        self.base_plugins = [p(self) for p in getattr(self,
-                                                      "plugin_classes", [])]
-
+        self.base_plugins = [p(self) for p in getattr(self, "plugin_classes", [])]
         self.args = args
         self.kwargs = kwargs
         self.init_plugin(*args, **kwargs)
@@ -316,7 +317,6 @@ class BaseAdminView(BaseAdminObject, View):
 
 
 class CommAdminView(BaseAdminView):
-
     base_template = 'xadmin/base_site.html'
     menu_template = 'xadmin/includes/sitemenu_default.html'
 
@@ -342,6 +342,7 @@ class CommAdminView(BaseAdminView):
             if 'menus' in menu:
                 for m in menu['menus']:
                     get_url(m, had_urls)
+
         get_url({'menus': site_menu}, had_urls)
 
         nav_menu = OrderedDict()
@@ -384,7 +385,7 @@ class CommAdminView(BaseAdminView):
             if app_icon:
                 app_menu['first_icon'] = app_icon
             elif ('first_icon' not in app_menu or
-                    app_menu['first_icon'] == self.default_model_icon) and model_dict.get('icon'):
+                  app_menu['first_icon'] == self.default_model_icon) and model_dict.get('icon'):
                 app_menu['first_icon'] = model_dict['icon']
 
             if 'first_url' not in app_menu and model_dict.get('url'):
@@ -453,6 +454,7 @@ class CommAdminView(BaseAdminView):
             if selected:
                 menu['selected'] = True
             return selected
+
         for menu in nav_menu:
             check_selected(menu, self.request.path)
 
@@ -483,7 +485,6 @@ class CommAdminView(BaseAdminView):
 
 
 class ModelAdminView(CommAdminView):
-
     fields = None
     exclude = None
     ordering = None
@@ -587,8 +588,9 @@ class ModelAdminView(CommAdminView):
         view_codename = get_permission_codename('view', self.opts)
         change_codename = get_permission_codename('change', self.opts)
 
-        return ('view' not in self.remove_permissions) and (self.user.has_perm('%s.%s' % (self.app_label, view_codename)) or
-                                                            self.user.has_perm('%s.%s' % (self.app_label, change_codename)))
+        return ('view' not in self.remove_permissions) and (
+                self.user.has_perm('%s.%s' % (self.app_label, view_codename)) or
+                self.user.has_perm('%s.%s' % (self.app_label, change_codename)))
 
     def has_add_permission(self):
         codename = get_permission_codename('add', self.opts)

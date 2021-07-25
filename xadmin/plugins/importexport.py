@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# encoding=utf-8
 """
 Author:zcyuefan
 Topic:django-import-export plugin for xadmin to help importing and exporting data using .csv/.xls/.../.json files
@@ -39,21 +38,20 @@ class FooAdmin(object):
 More info about django-import-export please refer https://github.com/django-import-export/django-import-export
 """
 from datetime import datetime
+
+from django.db import transaction
 from django.template import loader
+from import_export.admin import DEFAULT_FORMATS, ImportMixin, ImportExportMixinBase
+from import_export.forms import (ImportForm, ConfirmImportForm, ExportForm, )
+from import_export.resources import modelresource_factory
+from import_export.results import RowResult
+from import_export.signals import post_export, post_import
+
 from xadmin.plugins.utils import get_context_dict
 from xadmin.sites import site
 from xadmin.views import BaseAdminPlugin, ListAdminView, ModelAdminView
 from xadmin.views.base import csrf_protect_m, filter_hook
-from django.db import transaction
-from import_export.admin import DEFAULT_FORMATS, SKIP_ADMIN_LOG, TMP_STORAGE_CLASS
-from import_export.resources import modelresource_factory
-from import_export.forms import (
-    ImportForm,
-    ConfirmImportForm,
-    ExportForm,
-)
-from import_export.results import RowResult
-from import_export.signals import post_export, post_import
+
 try:
     from django.utils.encoding import force_text
 except ImportError:
@@ -106,13 +104,13 @@ class ImportBaseView(ModelAdminView):
 
     def get_skip_admin_log(self):
         if self.skip_admin_log is None:
-            return SKIP_ADMIN_LOG
+            return ImportMixin(ImportExportMixinBase).get_skip_admin_log()
         else:
             return self.skip_admin_log
 
     def get_tmp_storage_class(self):
         if self.tmp_storage_class is None:
-            return TMP_STORAGE_CLASS
+            return ImportMixin(ImportExportMixinBase).get_tmp_storage_class()
         else:
             return self.tmp_storage_class
 
@@ -303,7 +301,7 @@ class ImportProcessView(ImportBaseView):
                         )
             success_message = str(_(u'Import finished')) + ' , ' + str(_(u'Add')) + ' : %d' % result.totals[
                 RowResult.IMPORT_TYPE_NEW] + ' , ' + str(_(u'Update')) + ' : %d' % result.totals[
-                RowResult.IMPORT_TYPE_UPDATE]
+                                  RowResult.IMPORT_TYPE_UPDATE]
 
             messages.success(request, success_message)
             tmp_storage.remove()

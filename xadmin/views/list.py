@@ -1,11 +1,14 @@
 from __future__ import absolute_import
+
 from collections import OrderedDict
+
+from django.contrib.admin.utils import label_for_field
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.core.paginator import InvalidPage, Paginator
-from django.urls.base import NoReverseMatch
 from django.db import models
 from django.http import HttpResponseRedirect
 from django.template.response import SimpleTemplateResponse, TemplateResponse
+from django.urls.base import NoReverseMatch
 from django.utils import six
 from django.utils.encoding import force_text, smart_text
 from django.utils.html import escape, conditional_escape
@@ -13,8 +16,7 @@ from django.utils.safestring import mark_safe
 from django.utils.text import capfirst
 from django.utils.translation import ugettext as _
 
-from xadmin.util import lookup_field, display_for_field, label_for_field, boolean_icon
-
+from xadmin.util import lookup_field, display_for_field, boolean_icon
 from .base import ModelAdminView, filter_hook, inclusion_tag, csrf_protect_m
 
 # List settings
@@ -193,7 +195,7 @@ class ListAdminView(ModelAdminView):
                     })
                 return HttpResponseRedirect(self.request.path + '?' + ERROR_FLAG + '=1')
         self.has_more = self.result_count > (
-            self.list_per_page * self.page_num + len(self.result_list))
+                self.list_per_page * self.page_num + len(self.result_list))
 
     @filter_hook
     def get_result_list(self):
@@ -368,7 +370,8 @@ class ListAdminView(ModelAdminView):
         """
         self.title = _('%s List') % force_text(self.opts.verbose_name)
         model_fields = [(f, f.name in self.list_display, self.get_check_field_url(f))
-                        for f in (list(self.opts.fields) + self.get_model_method_fields()) if f.name not in self.list_exclude]
+                        for f in (list(self.opts.fields) + self.get_model_method_fields()) if
+                        f.name not in self.list_exclude]
 
         new_context = {
             'model_name': force_text(self.opts.verbose_name_plural),
@@ -429,7 +432,9 @@ class ListAdminView(ModelAdminView):
         elif i == self.page_num:
             return mark_safe(u'<span class="this-page">%d</span> ' % (i + 1))
         else:
-            return mark_safe(u'<a href="%s"%s>%d</a> ' % (escape(self.get_query_string({PAGE_VAR: i})), (i == self.paginator.num_pages - 1 and ' class="end"' or ''), i + 1))
+            return mark_safe(u'<a href="%s"%s>%d</a> ' % (
+            escape(self.get_query_string({PAGE_VAR: i})), (i == self.paginator.num_pages - 1 and ' class="end"' or ''),
+            i + 1))
 
     # Result List methods
     @filter_hook
@@ -502,7 +507,8 @@ class ListAdminView(ModelAdminView):
             row['num_sorted_fields'] = row['num_sorted_fields'] + 1
             menus.append((None, o_list_remove, 'times', _(u'Cancel Sort')))
             item.btns.append('<a class="toggle" href="%s"><i class="fa fa-%s"></i></a>' % (
-                self.get_query_string({ORDER_VAR: '.'.join(o_list_toggle)}), 'sort-up' if order_type == "asc" else 'sort-down'))
+                self.get_query_string({ORDER_VAR: '.'.join(o_list_toggle)}),
+                'sort-up' if order_type == "asc" else 'sort-down'))
 
         item.menus.extend(['<li%s><a href="%s" class="active"><i class="fa fa-%s"></i> %s</a></li>' %
                            (
@@ -552,8 +558,8 @@ class ListAdminView(ModelAdminView):
                         item.text = field_val
                 else:
                     item.text = display_for_field(value, f)
-                if isinstance(f, models.DateField)\
-                    or isinstance(f, models.TimeField)\
+                if isinstance(f, models.DateField) \
+                        or isinstance(f, models.TimeField) \
                         or isinstance(f, models.ForeignKey):
                     item.classes.append('nowrap')
 
@@ -573,8 +579,9 @@ class ListAdminView(ModelAdminView):
                         edit_url = self.model_admin_url("change", getattr(obj, self.pk_attname))
                     else:
                         edit_url = ""
-                    item.wraps.append('<a data-res-uri="%s" data-edit-uri="%s" class="details-handler" rel="tooltip" title="%s">%%s</a>'
-                                      % (item_res_uri, edit_url, _(u'Details of %s') % str(obj)))
+                    item.wraps.append(
+                        '<a data-res-uri="%s" data-edit-uri="%s" class="details-handler" rel="tooltip" title="%s">%%s</a>'
+                        % (item_res_uri, edit_url, _(u'Details of %s') % str(obj)))
             else:
                 url = self.url_for_result(obj)
                 item.wraps.append(u'<a href="%s">%%s</a>' % url)
@@ -618,7 +625,7 @@ class ListAdminView(ModelAdminView):
         paginator, page_num = self.paginator, self.page_num
 
         pagination_required = (
-            not self.show_all or not self.can_show_all) and self.multi_page
+                                      not self.show_all or not self.can_show_all) and self.multi_page
         if not pagination_required:
             page_range = []
         else:

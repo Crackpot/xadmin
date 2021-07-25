@@ -1,8 +1,8 @@
-import io
 import datetime
+import io
 import sys
-from future.utils import iteritems
 
+from django.db.models import BooleanField, NullBooleanField
 from django.http import HttpResponse
 from django.template import loader
 from django.utils import six
@@ -10,32 +10,32 @@ from django.utils.encoding import force_text, smart_text
 from django.utils.html import escape
 from django.utils.translation import ugettext as _
 from django.utils.xmlutils import SimplerXMLGenerator
-from django.db.models import BooleanField, NullBooleanField
+from future.utils import iteritems
 
 from xadmin.plugins.utils import get_context_dict
 from xadmin.sites import site
-from xadmin.views import BaseAdminPlugin, ListAdminView
 from xadmin.util import json
+from xadmin.views import BaseAdminPlugin, ListAdminView
 from xadmin.views.list import ALL_VAR
 
 try:
     import xlwt
+
     has_xlwt = True
 except:
     has_xlwt = False
 
 try:
     import xlsxwriter
+
     has_xlsxwriter = True
 except:
     has_xlsxwriter = False
 
 
 class ExportMenuPlugin(BaseAdminPlugin):
-
     list_export = ('xlsx', 'xls', 'csv', 'xml', 'json')
-    export_names = {'xlsx': 'Excel 2007', 'xls': 'Excel', 'csv': 'CSV',
-                    'xml': 'XML', 'json': 'JSON'}
+    export_names = {'xlsx': 'Excel 2007', 'xls': 'Excel', 'csv': 'CSV', 'xml': 'XML', 'json': 'JSON'}
 
     def init_request(self, *args, **kwargs):
         self.list_export = [
@@ -54,7 +54,6 @@ class ExportMenuPlugin(BaseAdminPlugin):
 
 
 class ExportPlugin(BaseAdminPlugin):
-
     export_mimes = {'xlsx': 'application/vnd.ms-excel',
                     'xls': 'application/vnd.ms-excel', 'csv': 'text/csv',
                     'xml': 'application/xhtml+xml', 'json': 'application/json'}
@@ -64,8 +63,8 @@ class ExportPlugin(BaseAdminPlugin):
 
     def _format_value(self, o):
         if (o.field is None and getattr(o.attr, 'boolean', False)) or \
-           (o.field and isinstance(o.field, (BooleanField, NullBooleanField))):
-                value = o.value
+                (o.field and isinstance(o.field, (BooleanField, NullBooleanField))):
+            value = o.value
         elif str(o.text).startswith("<span class='text-muted'>"):
             value = escape(str(o.text)[25:-7])
         else:
@@ -78,13 +77,13 @@ class ExportPlugin(BaseAdminPlugin):
 
         return [dict([
             (force_text(headers[i].text), self._format_value(o)) for i, o in
-            enumerate(filter(lambda c:getattr(c, 'export', False), r.cells))]) for r in rows]
+            enumerate(filter(lambda c: getattr(c, 'export', False), r.cells))]) for r in rows]
 
     def _get_datas(self, context):
         rows = context['results']
 
         new_rows = [[self._format_value(o) for o in
-            filter(lambda c:getattr(c, 'export', False), r.cells)] for r in rows]
+                     filter(lambda c: getattr(c, 'export', False), r.cells)] for r in rows]
         new_rows.insert(0, [force_text(c.text) for c in context['result_headers'].cells if c.export])
         return new_rows
 
@@ -92,7 +91,7 @@ class ExportPlugin(BaseAdminPlugin):
         datas = self._get_datas(context)
         output = io.BytesIO()
         export_header = (
-            self.request.GET.get('export_xlsx_header', 'off') == 'on')
+                self.request.GET.get('export_xlsx_header', 'off') == 'on')
 
         model_name = self.opts.verbose_name
         book = xlsxwriter.Workbook(output)
@@ -101,7 +100,8 @@ class ExportPlugin(BaseAdminPlugin):
         styles = {'datetime': book.add_format({'num_format': 'yyyy-mm-dd hh:mm:ss'}),
                   'date': book.add_format({'num_format': 'yyyy-mm-dd'}),
                   'time': book.add_format({'num_format': 'hh:mm:ss'}),
-                  'header': book.add_format({'font': 'name Times New Roman', 'color': 'red', 'bold': 'on', 'num_format': '#,##0.00'}),
+                  'header': book.add_format(
+                      {'font': 'name Times New Roman', 'color': 'red', 'bold': 'on', 'num_format': '#,##0.00'}),
                   'default': book.add_format()}
 
         if not export_header:
@@ -128,8 +128,7 @@ class ExportPlugin(BaseAdminPlugin):
     def get_xls_export(self, context):
         datas = self._get_datas(context)
         output = io.BytesIO()
-        export_header = (
-            self.request.GET.get('export_xls_header', 'off') == 'on')
+        export_header = (self.request.GET.get('export_xls_header', 'off') == 'on')
 
         model_name = self.opts.verbose_name
         book = xlwt.Workbook(encoding='utf8')
@@ -138,7 +137,8 @@ class ExportPlugin(BaseAdminPlugin):
         styles = {'datetime': xlwt.easyxf(num_format_str='yyyy-mm-dd hh:mm:ss'),
                   'date': xlwt.easyxf(num_format_str='yyyy-mm-dd'),
                   'time': xlwt.easyxf(num_format_str='hh:mm:ss'),
-                  'header': xlwt.easyxf('font: name Times New Roman, color-index red, bold on', num_format_str='#,##0.00'),
+                  'header': xlwt.easyxf('font: name Times New Roman, color-index red, bold on',
+                                        num_format_str='#,##0.00'),
                   'default': xlwt.Style.default_style}
 
         if not export_header:
@@ -166,7 +166,7 @@ class ExportPlugin(BaseAdminPlugin):
         if isinstance(t, bool):
             return _('Yes') if t else _('No')
         t = t.replace('"', '""').replace(',', '\,')
-        cls_str = str if six.PY3 else basestring
+        cls_str = str if six.PY3 else str
         if isinstance(t, cls_str):
             t = '"%s"' % t
         return t

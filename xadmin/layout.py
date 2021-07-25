@@ -1,12 +1,10 @@
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import *
-from crispy_forms.bootstrap import *
-from crispy_forms.utils import render_field, flatatt, TEMPLATE_PACK
+import math
 
 from crispy_forms import layout
-from crispy_forms import bootstrap
-
-import math
+from crispy_forms.bootstrap import *
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import *
+from crispy_forms.utils import render_field, TEMPLATE_PACK
 
 
 class Fieldset(layout.Fieldset):
@@ -39,12 +37,10 @@ class Row(layout.Div):
 class Col(layout.Column):
 
     def __init__(self, id, *fields, **kwargs):
-        css_class = ['column', 'form-column', id, 'col col-sm-%d' %
-                     kwargs.get('span', 6)]
+        css_class = ['column', 'form-column', id, 'col col-sm-%d' % kwargs.get('span', 6)]
         if kwargs.get('horizontal'):
             css_class.append('form-horizontal')
-        super(Col, self).__init__(css_class=' '.join(css_class), *
-                                  fields, **kwargs)
+        super(Col, self).__init__(css_class=' '.join(css_class), *fields, **kwargs)
 
 
 class Main(layout.Column):
@@ -61,7 +57,6 @@ class Container(layout.Div):
 
 # Override bootstrap3
 class InputGroup(layout.Field):
-
     template = "xadmin/layout/input_group.html"
 
     def __init__(self, field, *args, **kwargs):
@@ -82,13 +77,13 @@ class InputGroup(layout.Field):
     def render(self, form, form_style, context, template_pack=TEMPLATE_PACK, **kwargs):
         classes = form.fields[self.field].widget.attrs.get('class', '')
         extra_context = {
-            'inputs': self.inputs, 
+            'inputs': self.inputs,
             'input_size': self.input_size,
             'classes': classes.replace('form-control', '')
         }
         if hasattr(self, 'wrapper_class'):
             extra_context['wrapper_class'] = self.wrapper_class
-            
+
         return render_field(
             self.field, form, form_style, context, template=self.template,
             attrs=self.attrs, template_pack=template_pack, extra_context=extra_context, **kwargs)

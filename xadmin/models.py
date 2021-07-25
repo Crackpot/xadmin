@@ -1,21 +1,19 @@
-import json
-import django
-from django.db import models
-from django.utils import timezone
-from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext_lazy as _, ugettext
-from django.urls.base import reverse
-from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models.base import ModelBase
-from django.utils.encoding import python_2_unicode_compatible, smart_text
-
-from django.db.models.signals import post_migrate
-from django.contrib.auth.models import Permission
-
 import datetime
 import decimal
-from xadmin.util import quote
+import json
+
+from django.conf import settings
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db import models
+from django.db.models.base import ModelBase
+from django.db.models.signals import post_migrate
+from django.urls.base import reverse
+from django.utils import timezone
+from django.utils.encoding import smart_text
+from django.utils.translation import ugettext_lazy as _, ugettext
+from six import python_2_unicode_compatible
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
@@ -37,6 +35,7 @@ def add_view_permissions(sender, **kwargs):
                                       codename=codename,
                                       name="Can view %s" % content_type.name)
             # print "Added view permission for %s" % content_type.name
+
 
 # check for all our view permissions after a syncdb
 post_migrate.connect(add_view_permissions)

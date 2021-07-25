@@ -1,12 +1,12 @@
-from django.db.models import FieldDoesNotExist, Avg, Max, Min, Count, Sum
-from django.utils.translation import ugettext as _
+from django.core.exceptions import FieldDoesNotExist
+from django.db.models import Avg, Max, Min, Count, Sum
 from django.forms import Media
+from django.utils.translation import ugettext as _
 
 from xadmin.sites import site
-from xadmin.views import BaseAdminPlugin, ListAdminView
-
-from xadmin.views.list import ResultRow, ResultItem
 from xadmin.util import display_for_field
+from xadmin.views import BaseAdminPlugin, ListAdminView
+from xadmin.views.list import ResultRow, ResultItem
 
 AGGREGATE_METHODS = {
     'min': Min, 'max': Max, 'avg': Avg, 'sum': Sum, 'count': Count
@@ -17,7 +17,6 @@ AGGREGATE_TITLE = {
 
 
 class AggregationPlugin(BaseAdminPlugin):
-
     aggregate_fields = {}
 
     def init_request(self, *args, **kwargs):
@@ -37,7 +36,8 @@ class AggregationPlugin(BaseAdminPlugin):
                     item.text = ""
                 else:
                     item.text = display_for_field(obj[key], f)
-                    item.wraps.append('%%s<span class="aggregate_title label label-info">%s</span>' % AGGREGATE_TITLE[agg_method])
+                    item.wraps.append(
+                        '%%s<span class="aggregate_title label label-info">%s</span>' % AGGREGATE_TITLE[agg_method])
                     item.classes.append(agg_method)
             except FieldDoesNotExist:
                 item.text = ""

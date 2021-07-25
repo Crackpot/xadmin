@@ -1,15 +1,16 @@
-# coding:utf-8
 from __future__ import print_function
+
 import httplib2
-from django.template import loader
-from django.core.cache import cache
-from django.utils import six
-from django.utils.translation import ugettext as _
-from xadmin.sites import site
-from xadmin.models import UserSettings
-from xadmin.views import BaseAdminPlugin, BaseAdminView
-from xadmin.util import static, json
 import six
+from django.core.cache import cache
+from django.template import loader
+from django.utils.translation import ugettext as _
+
+from xadmin.models import UserSettings
+from xadmin.sites import site
+from xadmin.util import static, json
+from xadmin.views import BaseAdminPlugin, BaseAdminView
+
 if six.PY2:
     import urllib
 else:

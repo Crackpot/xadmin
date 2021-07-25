@@ -1,25 +1,25 @@
 import operator
-from future.utils import iteritems
-from xadmin import widgets
-from xadmin.plugins.utils import get_context_dict
+from functools import reduce
 
 from django.contrib.admin.utils import get_fields_from_path, lookup_needs_distinct
+from django.core.exceptions import FieldDoesNotExist
 from django.core.exceptions import SuspiciousOperation, ImproperlyConfigured, ValidationError
 from django.db import models
-from django.db.models.fields import FieldDoesNotExist
 from django.db.models.constants import LOOKUP_SEP
 # from django.db.models.sql.constants import QUERY_TERMS
 from django.template import loader
 from django.utils import six
 from django.utils.encoding import smart_str
 from django.utils.translation import ugettext as _
+from future.utils import iteritems
 
+from xadmin import widgets
 from xadmin.filters import manager as filter_manager, FILTER_PREFIX, SEARCH_VAR, DateFieldListFilter, \
     RelatedFieldSearchFilter
+from xadmin.plugins.utils import get_context_dict
 from xadmin.sites import site
-from xadmin.views import BaseAdminPlugin, ListAdminView
 from xadmin.util import is_related_field
-from functools import reduce
+from xadmin.views import BaseAdminPlugin, ListAdminView
 
 
 class IncorrectLookupParameters(Exception):
@@ -86,8 +86,8 @@ class FilterPlugin(BaseAdminPlugin):
 
         # for clean filters
         self.admin_view.has_query_param = bool(lookup_params)
-        self.admin_view.clean_query_url = self.admin_view.get_query_string(remove=[k for k in self.request.GET.keys() if
-                                                                                   k.startswith(FILTER_PREFIX)])
+        self.admin_view.clean_query_url = self.admin_view.get_query_string(
+            remove=[k for k in self.request.GET.keys() if k.startswith(FILTER_PREFIX)])
 
         # Normalize the types of keys
         if not self.free_query_filter:
@@ -151,7 +151,7 @@ class FilterPlugin(BaseAdminPlugin):
         try:
             for key, value in lookup_params.items():
                 use_distinct = (
-                    use_distinct or lookup_needs_distinct(self.opts, key))
+                        use_distinct or lookup_needs_distinct(self.opts, key))
         except FieldDoesNotExist as e:
             raise IncorrectLookupParameters(e)
 

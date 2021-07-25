@@ -1,16 +1,18 @@
+import inspect
 import sys
 from functools import update_wrapper
-from future.utils import iteritems
+
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models.base import ModelBase
+from django.template.engine import Engine
 from django.utils import six
 from django.views.decorators.cache import never_cache
-from django.template.engine import Engine
-import inspect
+from future.utils import iteritems
 
 if six.PY2 and sys.getdefaultencoding() == 'ascii':
     import imp
+
     imp.reload(sys)
     sys.setdefaultencoding("utf-8")
 
@@ -114,7 +116,8 @@ class AdminSite(object):
                     # which causes issues later on.
                     options['__module__'] = __name__
 
-                admin_class = type(str("%s%sAdmin" % (model._meta.app_label, model._meta.model_name)), (admin_class,), options or {})
+                admin_class = type(str("%s%sAdmin" % (model._meta.app_label, model._meta.model_name)), (admin_class,),
+                                   options or {})
                 admin_class.model = model
                 admin_class.order = self.model_admins_order
                 self.model_admins_order += 1
@@ -202,10 +205,12 @@ class AdminSite(object):
         ``never_cache`` decorator. If the view can be safely cached, set
         cacheable=True.
         """
+
         def inner(request, *args, **kwargs):
             if not self.has_permission(request) and getattr(view, 'need_site_permission', True):
                 return self.create_admin_view(self.login_view)(request, *args, **kwargs)
             return view(request, *args, **kwargs)
+
         if not cacheable:
             inner = never_cache(inner)
         return update_wrapper(inner, view)
@@ -233,7 +238,8 @@ class AdminSite(object):
                 bases = [plugin_class]
                 for oc in option_classes:
                     attrs.update(self._get_merge_attrs(oc, plugin_class))
-                    meta_class = getattr(oc, plugin_class.__name__, getattr(oc, plugin_class.__name__.replace('Plugin', ''), None))
+                    meta_class = getattr(oc, plugin_class.__name__,
+                                         getattr(oc, plugin_class.__name__.replace('Plugin', ''), None))
                     if meta_class:
                         bases.insert(0, meta_class)
                 if attrs:
@@ -241,6 +247,7 @@ class AdminSite(object):
                         '%s%s' % (''.join([oc.__name__ for oc in option_classes]), plugin_class.__name__),
                         tuple(bases), attrs)
             return plugin_class
+
         return merge_class
 
     def get_plugins(self, admin_view_class, *option_classes):
@@ -298,6 +305,7 @@ class AdminSite(object):
         def wrap(view, cacheable=False):
             def wrapper(*args, **kwargs):
                 return self.admin_view(view, cacheable)(*args, **kwargs)
+
             wrapper.admin_site = self
             return update_wrapper(wrapper, view)
 
@@ -349,13 +357,14 @@ class AdminSite(object):
         """
         return JavaScriptCatalog.as_view(packages=['django.contrib.admin'])(request)
 
+
 # This global object represents the default admin site, for the common case.
 # You can instantiate AdminSite in your own code to create a custom admin site.
 site = AdminSite()
 
 
 def register(models, **kwargs):
-
     def _model_admin_wrapper(admin_class):
         site.register(models, admin_class)
+
     return _model_admin_wrapper

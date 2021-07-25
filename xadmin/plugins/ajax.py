@@ -1,10 +1,11 @@
 from collections import OrderedDict
+
 from django.forms.utils import ErrorDict
-from django.utils.html import escape
 from django.utils.encoding import force_text
+from django.utils.html import escape
+
 from xadmin.sites import site
 from xadmin.views import BaseAdminPlugin, ListAdminView, ModelFormAdminView, DetailAdminView
-
 
 NON_FIELD_ERRORS = '__all__'
 
@@ -16,10 +17,10 @@ class BaseAjaxPlugin(BaseAdminPlugin):
 
 
 class AjaxListPlugin(BaseAjaxPlugin):
-    
-    def get_list_display(self,list_display):
-        list_fields = [field for field in self.request.GET.get('_fields',"").split(",") 
-                                if field.strip() != ""]
+
+    def get_list_display(self, list_display):
+        list_fields = [field for field in self.request.GET.get('_fields', "").split(",")
+                       if field.strip() != ""]
         if list_fields:
             return list_fields
         return list_display
@@ -31,10 +32,11 @@ class AjaxListPlugin(BaseAjaxPlugin):
         ).cells if c.field_name in base_fields])
 
         objects = [dict([(o.field_name, escape(str(o.value))) for i, o in
-                         enumerate(filter(lambda c:c.field_name in base_fields, r.cells))])
+                         enumerate(filter(lambda c: c.field_name in base_fields, r.cells))])
                    for r in av.results()]
 
-        return self.render_response({'headers': headers, 'objects': objects, 'total_count': av.result_count, 'has_more': av.has_more})
+        return self.render_response(
+            {'headers': headers, 'objects': objects, 'total_count': av.result_count, 'has_more': av.has_more})
 
 
 class JsonErrorDict(ErrorDict):
@@ -46,7 +48,8 @@ class JsonErrorDict(ErrorDict):
     def as_json(self):
         if not self:
             return u''
-        return [{'id': self.form[k].auto_id if k != NON_FIELD_ERRORS else NON_FIELD_ERRORS, 'name': k, 'errors': v} for k, v in self.items()]
+        return [{'id': self.form[k].auto_id if k != NON_FIELD_ERRORS else NON_FIELD_ERRORS, 'name': k, 'errors': v} for
+                k, v in self.items()]
 
 
 class AjaxFormPlugin(BaseAjaxPlugin):
@@ -93,6 +96,7 @@ class AjaxDetailPlugin(BaseAjaxPlugin):
             results.append((result.label, result.val))
 
         return self.render_response(OrderedDict(results))
+
 
 site.register_plugin(AjaxListPlugin, ListAdminView)
 site.register_plugin(AjaxFormPlugin, ModelFormAdminView)

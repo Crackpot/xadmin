@@ -1,24 +1,19 @@
 from __future__ import absolute_import
-import django
-from django.db import models
-from django.db.models.sql.query import LOOKUP_SEP
-from django.db.models.deletion import Collector
-from django.db.models.fields.related import ForeignObjectRel
-from django.forms.forms import pretty_name
-from django.utils import formats, six
-from django.utils.html import escape
-from django.utils.safestring import mark_safe
-from django.utils.text import capfirst
-from django.utils.encoding import force_text, smart_text, smart_str
-from django.utils.translation import ungettext
-from django.urls.base import reverse
-from django.conf import settings
-from django.forms import Media
-from django.utils.translation import get_language
-from django.contrib.admin.utils import label_for_field, help_text_for_field
-from django import VERSION as version
+
 import datetime
 import decimal
+
+from django.conf import settings
+from django.db import models
+from django.db.models.deletion import Collector
+from django.db.models.fields.related import ForeignObjectRel
+from django.db.models.sql.query import LOOKUP_SEP
+from django.forms import Media
+from django.utils import formats, six
+from django.utils.encoding import force_text, smart_text
+from django.utils.safestring import mark_safe
+from django.utils.translation import get_language
+from django.utils.translation import ungettext
 
 if 'django.contrib.staticfiles' in settings.INSTALLED_APPS:
     from django.contrib.staticfiles.templatetags.staticfiles import static
@@ -43,7 +38,7 @@ def xstatic(*tags):
     fs = []
     lang = get_language()
 
-    cls_str = str if six.PY3 else basestring
+    cls_str = str if six.PY3 else str
     for tag in tags:
         try:
             for p in tag.split('.'):
@@ -99,8 +94,8 @@ def lookup_needs_distinct(opts, lookup_path):
     field = opts.get_field(field_name)
     if ((hasattr(field, 'remote_field') and
          isinstance(field.remote_field, models.ManyToManyRel)) or
-        (is_related_field(field) and
-         not field.field.unique)):
+            (is_related_field(field) and
+             not field.field.unique)):
         return True
     return False
 
@@ -128,7 +123,7 @@ def quote(s):
     quoting is slightly different so that it doesn't get automatically
     unquoted by the Web browser.
     """
-    cls_str = str if six.PY3 else basestring
+    cls_str = str if six.PY3 else str
     if not isinstance(s, cls_str):
         return s
     res = list(s)
@@ -143,7 +138,7 @@ def unquote(s):
     """
     Undo the effects of quote(). Based heavily on urllib.unquote().
     """
-    cls_str = str if six.PY3 else basestring
+    cls_str = str if six.PY3 else str
     if not isinstance(s, cls_str):
         return s
     mychr = chr
@@ -285,11 +280,7 @@ def lookup_field(name, obj, model_admin=None):
         if callable(name):
             attr = name
             value = attr(obj)
-        elif (
-                model_admin is not None
-                and hasattr(model_admin, name)
-                and name not in ('__str__', '__unicode__')
-        ):
+        elif model_admin is not None and hasattr(model_admin, name) and name not in ('__str__', '__unicode__'):
             attr = getattr(model_admin, name)
             value = attr(obj)
         else:
@@ -317,7 +308,8 @@ def admin_urlname(value, arg):
 
 def boolean_icon(field_val):
     return mark_safe(u'<i class="%s" alt="%s"></i>' % (
-        {True: 'fa fa-check-circle text-success', False: 'fa fa-times-circle text-error', None: 'fa fa-question-circle muted'}[field_val], field_val))
+        {True: 'fa fa-check-circle text-success', False: 'fa fa-times-circle text-error',
+         None: 'fa fa-question-circle muted'}[field_val], field_val))
 
 
 def display_for_field(value, field):
@@ -447,8 +439,8 @@ def get_limit_choices_to_from_path(model, path):
     fields = get_fields_from_path(model, path)
     fields = remove_trailing_data_field(fields)
     limit_choices_to = (
-        fields and hasattr(fields[-1], 'remote_field') and
-        getattr(fields[-1].remote_field, 'limit_choices_to', None))
+            fields and hasattr(fields[-1], 'remote_field') and
+            getattr(fields[-1].remote_field, 'limit_choices_to', None))
     if not limit_choices_to:
         return models.Q()  # empty Q
     elif isinstance(limit_choices_to, models.Q):
@@ -470,6 +462,7 @@ def sortkeypicker(keynames):
             if k in negate:
                 composite[i] = -v
         return composite
+
     return getit
 
 

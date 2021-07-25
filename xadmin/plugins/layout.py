@@ -1,11 +1,10 @@
-# coding=utf-8
+from django.contrib.admin.utils import label_for_field
 from django.template import loader
 from django.utils.translation import ugettext_lazy as _
 
 from xadmin.plugins.utils import get_context_dict
 from xadmin.sites import site
 from xadmin.views import BaseAdminPlugin, ListAdminView
-from xadmin.util import label_for_field
 
 LAYOUT_VAR = '_layout'
 
@@ -26,7 +25,6 @@ DEFAULT_LAYOUTS = {
 
 
 class GridLayoutPlugin(BaseAdminPlugin):
-
     grid_layouts = []
 
     _active_layouts = []
@@ -54,7 +52,8 @@ class GridLayoutPlugin(BaseAdminPlugin):
         if self._current_layout == 'thumbnails':
             if getattr(item.attr, 'is_column', True):
                 item.field_label = label_for_field(
-                    field_name, self.model,
+                    field_name,
+                    self.model,
                     model_admin=self.admin_view,
                     return_attr=False
                 )

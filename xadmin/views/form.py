@@ -1,24 +1,17 @@
 from __future__ import absolute_import
+
 import copy
 
 from django import forms
-from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import PermissionDenied
-from django.db import models, transaction
-from django.forms.models import modelform_factory
-from django.http import Http404, HttpResponseRedirect
+from django.db import transaction
+from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.utils import six
-from django.utils.encoding import force_text
-from django.utils.html import escape
-from django.template import loader
 from django.utils.translation import ugettext as _
-from xadmin import widgets
-from xadmin.layout import FormHelper, Layout, Fieldset, TabHolder, Container, Column, Col, Field
-from xadmin.util import unquote
-from xadmin.views.detail import DetailAdminUtil
 
+from xadmin.layout import FormHelper, Layout, Fieldset, TabHolder, Container, Column, Col
 from .base import CommAdminView, filter_hook, csrf_protect_m
+
 
 class FormAdminView(CommAdminView):
     form = forms.ModelForm
@@ -57,8 +50,8 @@ class FormAdminView(CommAdminView):
 
         if layout is None:
             layout = Layout(Container(Col('full',
-                Fieldset("", *fields, css_class="unsort no_title"), horizontal=True, span=12)
-            ))
+                                          Fieldset("", *fields, css_class="unsort no_title"), horizontal=True, span=12)
+                                      ))
         elif type(layout) in (list, tuple) and len(layout) > 0:
             if isinstance(layout[0], Column):
                 fs = layout
@@ -112,7 +105,7 @@ class FormAdminView(CommAdminView):
         if self.valid_forms():
             self.save_forms()
             response = self.post_response()
-            cls_str = str if six.PY3 else basestring
+            cls_str = str if six.PY3 else str
             if isinstance(response, cls_str):
                 return HttpResponseRedirect(response)
             else:
@@ -132,7 +125,7 @@ class FormAdminView(CommAdminView):
     @filter_hook
     def get_media(self):
         return super(FormAdminView, self).get_media() + self.form_obj.media + \
-            self.vendor('xadmin.page.form.js', 'xadmin.form.css')
+               self.vendor('xadmin.page.form.js', 'xadmin.form.css')
 
     def get_initial_data(self):
         return {}

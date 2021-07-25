@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+
 import copy
 
 from crispy_forms.utils import TEMPLATE_PACK
@@ -7,22 +8,21 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied, FieldError
 from django.db import models, transaction
 from django.forms.models import modelform_factory, modelform_defines_fields
+from django.forms.widgets import Media
 from django.http import Http404, HttpResponseRedirect
+from django.template import loader
 from django.template.response import TemplateResponse
 from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.html import escape
-from django.utils.text import capfirst, get_text_list
-from django.template import loader
+from django.utils.text import get_text_list
 from django.utils.translation import ugettext as _
-from django.forms.widgets import Media
+
 from xadmin import widgets
 from xadmin.layout import FormHelper, Layout, Fieldset, TabHolder, Container, Column, Col, Field
 from xadmin.util import unquote
 from xadmin.views.detail import DetailAdminUtil
-
 from .base import ModelAdminView, filter_hook, csrf_protect_m
-
 
 FORMFIELD_FOR_DBFIELD_DEFAULTS = {
     models.DateTimeField: {
@@ -333,7 +333,7 @@ class ModelFormAdminView(ModelAdminView):
                                  and (change or new_context['show_delete'])),
             'show_save_as_new': change and self.save_as,
             'show_save_and_add_another': new_context['has_add_permission'] and
-                                (not self.save_as or add),
+                                         (not self.save_as or add),
             'show_save_and_continue': new_context['has_change_permission'],
             'show_save': True
         })
@@ -360,7 +360,7 @@ class ModelFormAdminView(ModelAdminView):
         except:
             m = Media()
         return super(ModelFormAdminView, self).get_media() + m + \
-            self.vendor('xadmin.page.form.js', 'xadmin.form.css')
+               self.vendor('xadmin.page.form.js', 'xadmin.form.css')
 
 
 class CreateAdminView(ModelFormAdminView):
@@ -426,9 +426,11 @@ class CreateAdminView(ModelFormAdminView):
         """
         request = self.request
 
-        msg = _(
-            'The %(name)s "%(obj)s" was added successfully.') % {'name': force_text(self.opts.verbose_name),
-                                                                 'obj': "<a class='alert-link' href='%s'>%s</a>" % (self.model_admin_url('change', self.new_obj._get_pk_val()), force_text(self.new_obj))}
+        msg = _('The %(name)s "%(obj)s" was added successfully.') % {
+            'name': force_text(self.opts.verbose_name),
+            'obj': "<a class='alert-link' href='%s'>%s</a>" % (
+                self.model_admin_url('change', self.new_obj._get_pk_val()),
+                force_text(self.new_obj))}
 
         if "_continue" in request.POST:
             self.message_user(
@@ -436,7 +438,8 @@ class CreateAdminView(ModelFormAdminView):
             return self.model_admin_url('change', self.new_obj._get_pk_val())
 
         if "_addanother" in request.POST:
-            self.message_user(msg + ' ' + (_("You may add another %s below.") % force_text(self.opts.verbose_name)), 'success')
+            self.message_user(msg + ' ' + (_("You may add another %s below.") % force_text(self.opts.verbose_name)),
+                              'success')
             return request.path
         else:
             self.message_user(msg, 'success')
@@ -523,8 +526,8 @@ class UpdateAdminView(ModelFormAdminView):
 
         pk_value = obj._get_pk_val()
 
-        msg = _('The %(name)s "%(obj)s" was changed successfully.') % {'name':
-                                                                       force_text(verbose_name), 'obj': force_text(obj)}
+        msg = _('The %(name)s "%(obj)s" was changed successfully.') % {'name': force_text(verbose_name),
+                                                                       'obj': force_text(obj)}
         if "_continue" in request.POST:
             self.message_user(
                 msg + ' ' + _("You may edit it again below."), 'success')
