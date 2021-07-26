@@ -5,14 +5,14 @@ import copy
 from crispy_forms.utils import TEMPLATE_PACK
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import PermissionDenied, FieldError
+from django.core.exceptions import PermissionDenied, FieldError, FieldDoesNotExist
 from django.db import models, transaction
 from django.forms.models import modelform_factory, modelform_defines_fields
 from django.forms.widgets import Media
 from django.http import Http404, HttpResponseRedirect
 from django.template import loader
 from django.template.response import TemplateResponse
-from django.utils import six
+import six
 from django.utils.encoding import force_text
 from django.utils.html import escape
 from django.utils.text import get_text_list
@@ -292,7 +292,7 @@ class ModelFormAdminView(ModelAdminView):
             self.save_models()
             self.save_related()
             response = self.post_response()
-            cls_str = str if six.PY3 else basestring
+            cls_str = str if six.PY3 else str
             if isinstance(response, cls_str):
                 return HttpResponseRedirect(response)
             else:
@@ -383,7 +383,7 @@ class CreateAdminView(ModelFormAdminView):
             for k in initial:
                 try:
                     f = self.opts.get_field(k)
-                except models.FieldDoesNotExist:
+                except FieldDoesNotExist:
                     continue
                 if isinstance(f, models.ManyToManyField):
                     initial[k] = initial[k].split(",")

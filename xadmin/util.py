@@ -3,21 +3,24 @@ from __future__ import absolute_import
 import datetime
 import decimal
 
+import six
 from django.conf import settings
 from django.contrib.admin.utils import label_for_field, help_text_for_field
+from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.db.models.deletion import Collector
 from django.db.models.fields.related import ForeignObjectRel
 from django.db.models.sql.query import LOOKUP_SEP
 from django.forms import Media
-from django.utils import formats, six
+from django.utils import formats
 from django.utils.encoding import force_text, smart_text
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 from django.utils.translation import ungettext
 
 if 'django.contrib.staticfiles' in settings.INSTALLED_APPS:
-    from django.contrib.staticfiles.templatetags.staticfiles import static
+    # from django.contrib.staticfiles.templatetags.staticfiles import static
+    from django.templatetags.static import static
 else:
     from django.templatetags.static import static
 
@@ -275,7 +278,7 @@ def lookup_field(name, obj, model_admin=None):
     opts = obj._meta
     try:
         f = opts.get_field(name)
-    except models.FieldDoesNotExist:
+    except FieldDoesNotExist:
         # For non-field values, the value is either a method, property or
         # returned via a callable.
         if callable(name):

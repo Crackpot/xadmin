@@ -1,6 +1,7 @@
 import copy
 import inspect
 
+import six
 from crispy_forms.utils import TEMPLATE_PACK
 from django import forms
 from django.contrib.auth import get_permission_codename
@@ -9,7 +10,6 @@ from django.forms.formsets import all_valid, DELETION_FIELD_NAME
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from django.template import loader
 from django.template.loader import render_to_string
-from django.utils import six
 from django.utils.encoding import smart_text
 
 from xadmin.layout import FormHelper, Layout, flatatt, Container, Column, Field, Fieldset

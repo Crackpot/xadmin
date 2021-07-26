@@ -1,7 +1,7 @@
-from django.db import models
-from django.contrib.auth.models import Group
 from django.conf import settings
-from django.utils.encoding import python_2_unicode_compatible
+from django.contrib.auth.models import Group
+from django.db import models
+from six import python_2_unicode_compatible
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
@@ -30,7 +30,7 @@ class IDC(models.Model):
     description = models.TextField()
 
     contact = models.CharField(max_length=32)
-    telphone = models.CharField(max_length=32)
+    telephone = models.CharField(max_length=32)
     address = models.CharField(max_length=128)
     customer_id = models.CharField(max_length=128)
     groups = models.ManyToManyField(Group)  # many

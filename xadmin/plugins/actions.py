@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+import six
 from django import forms, VERSION as django_version
 from django.contrib.admin.utils import get_deleted_objects
 from django.core.exceptions import PermissionDenied
@@ -7,7 +8,6 @@ from django.db import router
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.template.response import TemplateResponse
-from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 from django.utils.text import capfirst

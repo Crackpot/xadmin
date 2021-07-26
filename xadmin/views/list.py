@@ -2,13 +2,13 @@ from __future__ import absolute_import
 
 from collections import OrderedDict
 
-from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
+import six
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist, FieldDoesNotExist
 from django.core.paginator import InvalidPage, Paginator
 from django.db import models
 from django.http import HttpResponseRedirect
 from django.template.response import SimpleTemplateResponse, TemplateResponse
 from django.urls.base import NoReverseMatch
-from django.utils import six
 from django.utils.encoding import force_text, smart_text
 from django.utils.html import escape, conditional_escape
 from django.utils.safestring import mark_safe
@@ -223,7 +223,7 @@ class ListAdminView(ModelAdminView):
                 for field_name in self.list_display:
                     try:
                         field = self.opts.get_field(field_name)
-                    except models.FieldDoesNotExist:
+                    except FieldDoesNotExist:
                         pass
                     else:
                         if isinstance(field.remote_field, models.ManyToOneRel):
@@ -260,7 +260,7 @@ class ListAdminView(ModelAdminView):
         try:
             field = self.opts.get_field(field_name)
             return field.name
-        except models.FieldDoesNotExist:
+        except FieldDoesNotExist:
             # See whether field_name is a name of a non-field
             # that allows sorting.
             if callable(field_name):

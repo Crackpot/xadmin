@@ -2,11 +2,11 @@ from __future__ import absolute_import
 
 import copy
 
+import six
 from django import forms
 from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
-from django.utils import six
 from django.utils.translation import ugettext as _
 
 from xadmin.layout import FormHelper, Layout, Fieldset, TabHolder, Container, Column, Col

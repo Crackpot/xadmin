@@ -6,6 +6,7 @@ from collections import OrderedDict
 from functools import update_wrapper
 from inspect import getfullargspec
 
+import six
 from django import forms
 from django.apps import apps
 from django.conf import settings
@@ -17,7 +18,6 @@ from django.http import HttpResponse
 from django.template import Context, Template
 from django.template.response import TemplateResponse
 from django.urls.base import reverse
-from django.utils import six
 from django.utils.decorators import method_decorator, classonlymethod
 from django.utils.encoding import force_text, smart_text
 from django.utils.functional import Promise

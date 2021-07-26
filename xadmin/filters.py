@@ -2,11 +2,11 @@ from __future__ import absolute_import
 
 import datetime
 
+import six
 from django.core.cache import caches
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.template.loader import get_template
-from django.utils import six
 from django.utils import timezone
 from django.utils.encoding import smart_text
 from django.utils.html import escape, format_html

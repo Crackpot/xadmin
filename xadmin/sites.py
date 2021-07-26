@@ -2,11 +2,11 @@ import inspect
 import sys
 from functools import update_wrapper
 
+import six
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models.base import ModelBase
 from django.template.engine import Engine
-from django.utils import six
 from django.views.decorators.cache import never_cache
 from future.utils import iteritems
 

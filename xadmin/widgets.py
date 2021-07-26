@@ -33,7 +33,7 @@ class AdminDateWidget(forms.DateInput):
         super(AdminDateWidget, self).__init__(attrs=final_attrs, format=format)
 
     def render(self, name, value, attrs=None, renderer=None):
-        input_html = super(AdminDateWidget, self).render(name, value, attrs, renderer)
+        input_html = super(AdminDateWidget, self).render(name, value, attrs)
         return mark_safe(
             '<div class="input-group date bootstrap-datepicker"><span class="input-group-addon"><i class="fa fa-calendar"></i></span>%s'
             '<span class="input-group-btn"><button class="btn btn-default" type="button">%s</button></span></div>' % (
@@ -53,7 +53,7 @@ class AdminTimeWidget(forms.TimeInput):
         super(AdminTimeWidget, self).__init__(attrs=final_attrs, format=format)
 
     def render(self, name, value, attrs=None, renderer=None):
-        input_html = super(AdminTimeWidget, self).render(name, value, attrs, renderer)
+        input_html = super(AdminTimeWidget, self).render(name, value, attrs)
         return mark_safe(
             '<div class="input-group time bootstrap-clockpicker"><span class="input-group-addon"><i class="fa fa-clock-o">'
             '</i></span>%s<span class="input-group-btn"><button class="btn btn-default" type="button">%s</button></span></div>' % (
@@ -79,9 +79,8 @@ class AdminSplitDateTime(forms.SplitDateTimeWidget):
         forms.MultiWidget.__init__(self, widgets, attrs)
 
     def render(self, name, value, attrs=None, renderer=None):
-        input_html = [ht for ht in
-                      super(AdminSplitDateTime, self).render(name, value, attrs, renderer).replace(
-                          '><input>\n<input').split('\n') if ht != '']
+        input_html = [ht for ht in super(AdminSplitDateTime, self) \
+            .render(name, value, attrs).replace('><input', '>\n<input').split('\n') if ht != '']
         # return input_html
         return mark_safe(
             '<div class="datetime clearfix"><div class="input-group date bootstrap-datepicker"><span class="input-group-addon"><i class="fa fa-calendar"></i></span>%s'
@@ -176,7 +175,7 @@ class AdminSelectMultiple(forms.SelectMultiple):
 class AdminFileWidget(forms.ClearableFileInput):
     template_with_initial = (u'<p class="file-upload">%s</p>' % forms.ClearableFileInput.initial_text)
     template_with_clear = (
-                u'<span class="clearable-file-input">%s</span>' % forms.ClearableFileInput.clear_checkbox_label)
+            u'<span class="clearable-file-input">%s</span>' % forms.ClearableFileInput.clear_checkbox_label)
 
 
 class AdminTextareaWidget(forms.Textarea):

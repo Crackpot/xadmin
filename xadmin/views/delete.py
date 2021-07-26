@@ -1,10 +1,10 @@
+import six
 from django import VERSION as django_version
 from django.contrib.admin.utils import get_deleted_objects
 from django.core.exceptions import PermissionDenied
 from django.db import transaction, router
 from django.http import Http404, HttpResponseRedirect
 from django.template.response import TemplateResponse
-from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.html import escape
 from django.utils.translation import ugettext as _
@@ -63,7 +63,7 @@ class DeleteAdminView(ModelAdminView):
         self.delete_model()
 
         response = self.post_response()
-        cls_str = str if six.PY3 else basestring
+        cls_str = str if six.PY3 else str
         if isinstance(response, cls_str):
             response = HttpResponseRedirect(response)
         return response

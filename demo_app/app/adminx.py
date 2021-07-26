@@ -48,14 +48,14 @@ class MaintainInline(object):
 
 @xadmin.sites.register(IDC)
 class IDCAdmin(object):
-    list_display = ("name", "description", "create_time", "contact", "telphone", "address", "customer_id")
+    list_display = ("name", "description", "create_time", "contact", "telephone", "address", "customer_id")
     list_display_links = ("name",)
     wizard_form_list = [
         ("First's Form", ("name", "description")),
-        ("Second Form", ("contact", "telphone", "address")),
+        ("Second Form", ("contact", "telephone", "address")),
         ("Thread Form", ("customer_id",))
     ]
-    search_fields = ["name", "description", "contact", "telphone", "address"]
+    search_fields = ["name", "description", "contact", "telephone", "address"]
     list_filter = [
         "name"
     ]
